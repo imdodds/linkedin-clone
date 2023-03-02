@@ -7,11 +7,15 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import CalendarViewDayIcon from '@mui/icons-material/CalendarViewDay';
 import InputOption from './InputOption';
 import Post from './Post';
-import { firestore as db } from '../firebase';
-import firebase from '../firebase';
+import { db } from '../firebase';
+import firebase from 'firebase/compat/app';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../features/userSlice';
 
 
 function Feed() {
+
+  const user = useSelector(selectUser);
 
   const [input, setInput] = useState('');
   const [posts, setPosts] = useState([]);
@@ -19,9 +23,9 @@ function Feed() {
   useEffect(() => {
     db.collection('posts')
       .orderBy('timestamp', 'desc')
-      .onSnapshot(snapshot => 
+      .onSnapshot((snapshot) => 
         setPosts(
-          snapshot.docs.map(doc => ({
+          snapshot.docs.map((doc) => ({
           id: doc.id,
           data: doc.data(),
         }))
@@ -33,10 +37,10 @@ function Feed() {
     event.preventDefault();
 
     db.collection('posts').add({
-      name: 'Ian Dodds',
-      description: 'This is the description',
+      name: user.displayName,
+      description: user.email,
       message: input,
-      photoURL: '',
+      photoUrl: user.photoUrl || '',
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
